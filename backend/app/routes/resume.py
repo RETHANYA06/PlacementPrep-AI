@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 import os
 import fitz
+from app.services.resume_parser import parse_resume
 
 router = APIRouter()
 
@@ -27,8 +28,10 @@ async def upload_resume(file: UploadFile = File(...)):
 
     pdf.close()
 
+    profile = parse_resume(extracted_text)
+
     return {
         "message": "Resume uploaded successfully",
         "filename": file.filename,
-        "text": extracted_text
+        "profile": profile
     }
