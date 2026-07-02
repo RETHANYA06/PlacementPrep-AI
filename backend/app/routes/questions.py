@@ -1,12 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+import app.session as session
 from app.services.question_generator import generate_questions
 
 router = APIRouter()
 
 
 class QuestionRequest(BaseModel):
-    profile: dict
+    company: str = "General"
     round_type: str = "technical"
     difficulty: str = "medium"
     count: int = 10
@@ -15,11 +17,16 @@ class QuestionRequest(BaseModel):
 @router.post("/generate-questions")
 def generate(req: QuestionRequest):
 
-    questions = generate_questions(
-        profile=req.profile,
-        round_type=req.round_type,
-        difficulty=req.difficulty,
-        count=req.count
+    if session.current_profile is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Upload a resume first."
+        )
+    print(session.current_profile)
+    return generate_questions(
+        profile=session.current_profile,
+    round_type=req.round_type,
+    difficulty=req.difficulty,
+    company=req.company,
+    count=req.count
     )
-
-    return questions
