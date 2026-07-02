@@ -45,3 +45,19 @@ def start_interview(req: InterviewRequest):
         "total_questions": len(data["questions"]),
         "first_question": data["questions"][0]
     }
+@router.get("/next-question")
+def next_question():
+
+    current = interview.current_interview["current_question"]
+    questions = interview.current_interview["questions"]
+
+    if current >= len(questions):
+        return {
+            "message": "Interview completed"
+        }
+
+    return {
+        "question_number": current + 1,
+        "total_questions": len(questions),
+        "question": questions[current]
+    }
